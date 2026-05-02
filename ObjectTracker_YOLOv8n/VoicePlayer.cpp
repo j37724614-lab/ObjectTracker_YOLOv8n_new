@@ -44,7 +44,7 @@
  *   only a handful, so ch 7 is effectively reserved for us. We configure it
  *   via the raw PDMA_* API below; the nu_pdma framework's IRQ handler
  *   dispatches per-channel callbacks, and since we never register one for
- *   ch 7 it simply ignores our TD events — we poll them ourselves. */
+ *   ch 7 it simply ignores our TD events; we poll them ourselves. */
 
 /* ---------------- DMA descriptors / PCM buffers ---------------- */
 
@@ -406,7 +406,7 @@ void VoicePlay_SetVolume(int db)
 
 static bool s_uart_initialised = false;
 
-#define VP_UART_PORT    UART0
+#define VP_UART_PORT    UART2
 #define VP_UART_BAUDRATE 115200
 #define UART_START_BYTE 0xAA
 #define UART_END_BYTE 0x55
@@ -417,14 +417,14 @@ int VoicePlay_UART_Init(void)
     
     SYS_UnlockReg();
     
-    /* Configure UART0: PB1(D1/TX), PB0(D0/RX) - Arduino UNO compatible */
-    SYS_ResetModule(UART0_RST);
-    CLK_EnableModuleClock(UART0_MODULE);
-    CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));
+    /* Configure UART2: PB1(D1/TX), PB0(D0/RX) - Arduino UNO compatible */
+    SYS_ResetModule(SYS_UART2RST);
+    CLK_EnableModuleClock(UART2_MODULE);
+    CLK_SetModuleClock(UART2_MODULE, CLK_UARTSEL0_UART2SEL_HXT, CLK_UARTDIV0_UART2DIV(1));
     
-    /* Set PB1 as UART0 TX (D1) and PB0 as UART0 RX (D0) */
-    SET_UART0_RXD_PB0();
-    SET_UART0_TXD_PB1();
+    /* Set PB1 as UART2 TX (D1) and PB0 as UART2 RX (D0) */
+    SET_UART2_RXD_PB0();
+    SET_UART2_TXD_PB1();
     
     /* Open UART */
     UART_Open(VP_UART_PORT, VP_UART_BAUDRATE);
@@ -432,7 +432,7 @@ int VoicePlay_UART_Init(void)
     SYS_LockReg();
     
     s_uart_initialised = true;
-    std::printf("[UART] Initialized at %d baud on UART0 (D1/TX, D0/RX)\n", VP_UART_BAUDRATE);
+    std::printf("[UART] Initialized at %d baud on UART2 (D1/TX, D0/RX)\n", VP_UART_BAUDRATE);
     return 0;
 }
 
